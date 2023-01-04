@@ -169,20 +169,23 @@ def p_instr_war(p):
 
 def p_instr_spec(p):
     '''instr_spec : instr_while | instr_if'''
-    if p[1] == 'instr_while' :
-        p[0] = 'instr_while'
-    elif p[1] == 'instr_if':
-        p[0] = 'instr_if'
+    # if p[1] == 'instr_while' :
+    #     p[0] = 'instr_while'
+    # elif p[1] == 'instr_if':
+    #     p[0] = 'instr_if'
+    p[0] = [1]
 
 def p_instr_while(p):
     '''instr_while : WHILE instr_war DO ciag_instr END '''
-    if p[2] == 'instr_war' and p[4] == 'ciag_instr':
-        while p[2]: p[4]
+    # if p[2] == 'instr_war' and p[4] == 'ciag_instr':
+    #     while p[2]: p[4]
+    p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
 def p_instr_if(p):
     '''instr_if : IF instr_war THEN ciag_instr END '''
-    if p[2] == 'instr_war' and p[4] == 'ciag_instr':
-        if p[2]: p[4]
+    # if p[2] == 'instr_war' and p[4] == 'ciag_instr':
+    #     if p[2]: p[4]
+    p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
 
 
