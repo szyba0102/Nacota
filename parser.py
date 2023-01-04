@@ -47,6 +47,55 @@ def t_ID(t):
     r"[a-zA-Z_]\w*"
     return t
 
+def t_FORAWRD(dist, angle, canvas):
+    radians = math.radians(angle)
+    x = math.sin(radians) * dist
+    y = math.cos(radians) * dist
+    # print(math.sin(radians))
+    # print(math.cos(radians))
+    canvas.create_line(coord, coord[0] + x, coord[1] - y)
+    coord[0] += x
+    coord[1] -= y
+    canvas.pack(fill=BOTH, expand=1)
+
+def t_BACKWARD(dist, angle, canvas):
+    x = math.sin(math.radians(angle)) * dist
+    y = math.cos(math.radians(angle)) * dist
+    canvas.create_line(coord, coord[0] - x, coord[1] + y)
+    coord[0] -= x
+    coord[1] += y
+    canvas.pack(fill=BOTH, expand=1)
+
+
+def t_LEFT(val):
+    angle = math.abs()
+
+def t_RIGHT(angle, val):
+    angle = ((angle + val) % 360)
+    return angle
+
+# def FOR()
+# def init():
+#     root = Tk()
+#     root.geometry("300x150")
+#     canvas = Canvas(root)
+#     canvas.pack()
+#     root.mainloop()
+def t_NUMBER(t):
+    r'\d+'
+    t.value = int(t.value)
+    return t
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+def t_error(t):
+    print("line %d: illegal character '%s'" %(t.lineno, t.value[0]) )
+    t.lexer.skip(1)
+
+
+
 def p_ciag_instr(p):
     '''ciag_instr : instrukcja ciag_instr
                   | instrukcja'''
@@ -140,50 +189,3 @@ def p_instr_if(p):
 
 
 
-def t_FORAWRD(dist, angle, canvas):
-    radians = math.radians(angle)
-    x = math.sin(radians) * dist
-    y = math.cos(radians) * dist
-    # print(math.sin(radians))
-    # print(math.cos(radians))
-    canvas.create_line(coord, coord[0] + x, coord[1] - y)
-    coord[0] += x
-    coord[1] -= y
-    canvas.pack(fill=BOTH, expand=1)
-
-def t_BACKWARD(dist, angle, canvas):
-    x = math.sin(math.radians(angle)) * dist
-    y = math.cos(math.radians(angle)) * dist
-    canvas.create_line(coord, coord[0] - x, coord[1] + y)
-    coord[0] -= x
-    coord[1] += y
-    canvas.pack(fill=BOTH, expand=1)
-
-
-def t_LEFT(val):
-    angle = math.abs()
-
-def t_RIGHT(angle, val):
-    angle = ((angle + val) % 360)
-    return angle
-
-# def FOR()
-# def init():
-#     root = Tk()
-#     root.geometry("300x150")
-#     canvas = Canvas(root)
-#     canvas.pack()
-#     root.mainloop()
-def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
-
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-
-
-def t_error(t):
-    print("line %d: illegal character '%s'" %(t.lineno, t.value[0]) )
-    t.lexer.skip(1)
