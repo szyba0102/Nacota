@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # print(math.cos(math.radians(90)))
     lexer = lex.lex()
     parser = yacc.yacc()
-    text = 'a = 5'
+    text = 'a := 5'
     parser.parse(text, lexer=lexer)
 
 
