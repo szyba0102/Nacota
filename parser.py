@@ -26,6 +26,7 @@ reserved = {
 #           'RBRACE', 'PLACE', 'NOTSMALLER', 'NOTBIGGER', 'EQUAL', 'SMALLER', 'BIGGER'] + list(reserved.values())
 tokens = ['PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'NUMBER', 'ID',
           'PLACE', 'NOTSMALLER', 'NOTBIGGER', 'EQUAL', 'SMALLER', 'BIGGER'] + list(reserved.values())
+
 coord = [300, 300]
 # angle = 90
 
@@ -49,6 +50,7 @@ t_ignore = ' \t'
 
 def t_ID(t):
     r"[a-zA-Z_]\w*"
+    t.type = reserved.get(t.value, 'ID')
     return t
 
 
@@ -253,14 +255,6 @@ if __name__ == '__main__':
     parser = yacc.yacc()
     # text = 'forward 1'
     # text = 'a:=1'
-    text = 'forward 2'
+    text = "while 1 < 3 do home end forward 1"
     parser.parse(text, lexer=lexer)
-
-
-# 1. wystarczą same te """komentarze""" żeby był język, reszta to były juz akcje wiec je zakomentowałem żeby nie mąciły
-# 2. w pliku parser.out który się sam generuje w folderze projektu jak odpalisz parser,
-# wypisuje sie gramatyka i latwiej tam patrzeć jak to wygląda
-# Ogólnie tam sie wypisuje wszystko, jakieś stany i w ogóle i się spoko to analizuje
-# 3. dodałem p_S bo na stacku ktoś pisał że pierwsze produkcja musi być taka prostrza żeby nie było błędów
-# 4. w tych co ma być rekurencja dodałem produkcję pustą, tak też pisali na staku że można zrobić
 
