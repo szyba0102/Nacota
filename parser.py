@@ -2,6 +2,7 @@ import math
 import ply.lex as lex
 from tkinter import Tk, Canvas, Frame, BOTH
 import ply.yacc as yacc
+import main
 
 reserved = {
     'if': 'IF',
@@ -21,6 +22,8 @@ reserved = {
     'end': 'END',
     'then': 'THEN'
 }
+
+symtab = {}
 
 # tokens = ['PLUS',  'MINUS',  'TIMES',  'DIVIDE',  'LPAREN',  'RPAREN',  'NUMBER', 'ID', 'LBRACE',
 #           'RBRACE', 'PLACE', 'NOTSMALLER', 'NOTBIGGER', 'EQUAL', 'SMALLER', 'BIGGER'] + list(reserved.values())
@@ -90,7 +93,7 @@ def t_ID(t):
 #     root.mainloop()
 def t_NUMBER(t):
     r'\d+'
-    # t.value = int(t.value)
+    t.value = int(t.value)
     return t
 
 
@@ -105,14 +108,13 @@ def t_error(t):
 
 def p_S(p):
     """S : ciag_instr """
+    p[0] = p[1]
 
 def p_ciag_instr(p):
     """ciag_instr : instrukcja ciag_instr
                     | empty"""
-    # if len(p) == 2:
-    #     p[0] = [p[1]]
-    # else:
-    #     p[0] = [p[1]] + p[2]
+    if len(p) == 3:
+        p[0] = [p[1],p[2]]
 
 
 def p_empty(p):
@@ -124,13 +126,13 @@ def p_instrukcja(p):
     """instrukcja : instr_podst
                     | instr_spec
                     | instr_assign"""
-    # p[0] = p[1]
+    p[0] = p[1]
 
 
 def p_instr_podst(p):
     """instr_podst : instr_zmienna
                     | instr_zwykla"""
-    # p[0] = p[1]
+    p[0] = p[1]
 
 def p_instr_zmienna(p):
     """instr_zmienna : FORWARD exp
@@ -139,38 +141,50 @@ def p_instr_zmienna(p):
                     | RIGHT exp
                     | BACKGROUND color
                     | PENCOLOR color"""
-    # p[0] = [p[1], p[2]]
+    p[0] = [p[1], p[2]]
 
 
 def p_color(p):
     """color : NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER"""
-    # p[0] = [p[1], p[2], p[3], p[4], p[5], p[6]]
+    p[0] = [p[1], p[2], p[3], p[4], p[5], p[6]]
 
 
 def p_exp(p):  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! def t_IDENT(t):
     """exp : numexp
             | ID """
-    # if len(p) == 2:
-    #     p[0]=p[1]
-    # elif len(p) == 3:
-    #     p[0] = [p[1],p[2]]
+    p[0] = p[1]
 
 def p_numexp(p):
     """numexp : NUMBER
                 | NUMBER numexp"""
+    if len(p) == 3:
+        # p[0] = [p[1],p[2]]
+        p[0] = p[1]*10 + p[2]
+    else:
+        p[0] = p[1]
+
 
 def p_instr_zwykla(p):
     """instr_zwykla : CLEARSCREEN
                     | HOME
                     | PENUP
                     | PENDOWN"""
-    # p[0] = p[1]
+    if p[1] == "clearscreen":
+        p[0] = main.t_CLEAR_SCREEN
+    elif p[1] == "home":
+        p[0] = main.t_HOME
+    elif p[1] == "penup":
+        p[0] = main.t_PEN_UP
+    elif p[1] == "pendown":
+        p[0] = main.t_PEN_DOWN
 
 
 def p_instr_assign(p):
     """instr_assign : ID PLACE exp
                     | ID PLACE instr_mat"""
-    # p[0] = p[3]
+    p[0] = p[3]
+    symtab[p[1]] = p[3]
+    print(p[1],p[3])
 
     # if p[2] == 'exp':
     #     p[0] = p[3]
@@ -183,14 +197,14 @@ def p_instr_mat(p):
             | exp MINUS exp
             | exp TIMES exp
             | exp DIVIDE exp"""
-    # if p[2] == 'PLUS':
-    #     p[0] = p[1] + p[3]
-    # elif p[2] == 'MINUS':
-    #     p[0] = p[1] - p[3]
-    # elif p[2] == 'TIMES':
-    #     p[0] = p[1] * p[2]
-    # elif p[2] == 'DIVIDE':
-    #     p[0] = p[1] / p[3]
+    if p[2] == 'PLUS':
+        p[0] = p[1] + p[3]
+    elif p[2] == 'MINUS':
+        p[0] = p[1] - p[3]
+    elif p[2] == 'TIMES':
+        p[0] = p[1] * p[2]
+    elif p[2] == 'DIVIDE':
+        p[0] = p[1] / p[3]
 
 
 def p_instr_war(p):
@@ -199,35 +213,56 @@ def p_instr_war(p):
             | exp BIGGER exp
             | exp NOTBIGGER exp
             | exp EQUAL exp"""
-    # if p[2] == 'SMALLER':
-    #     p[0] = p[1] < p[3]
-    # elif p[2] == 'NOTSMALLER':
-    #     p[0] = p[1] >= p[3]
-    # elif p[2] == 'BIGGER':
-    #     p[0] = p[1] > p[2]
-    # elif p[2] == 'NOTBIGGER':
-    #     p[0] = p[1] <= p[3]
-    # elif p[2] == 'EQUAL':
-    #     p[0] = p[1] == p[3]
+    p[0] = (p[1],p[2],p[3])
 
 
 def p_instr_spec(p):
     """instr_spec : instr_while
                 | instr_if"""
-    # if p[1] == 'instr_while' :
-    #     p[0] = 'instr_while'
-    # elif p[1] == 'instr_if':
-    #     p[0] = 'instr_if'
+    p = p[1]
 
-    # p[0] = [1]
+    func = lambda a,b: a == b
+
+    if p[2] == '<':
+       func = lambda a,b: a < b
+    elif p[2] == '>=':
+        func = lambda a,b: a >= b
+    elif p[2] == '>':
+        func = lambda a,b: a > b
+    elif p[2] == '<=':
+        func = lambda a,b: a <= b
+    elif p[2] == '==':
+        func = lambda a,b: a == b
+
+    print("l:",symtab[p[1][0]] if isinstance(p[1][0], str) else p[1][0])
+    print("r:",symtab[p[1][2]] if isinstance(p[1][2], str) else p[1][2])
+    print(p[])
+
+    if p[0] == 'while' :
+        print(func(
+                    symtab[p[1][0]] if isinstance(p[1][0],str) else p[1][0],
+                    symtab[p[1][2]] if isinstance(p[1][2],str) else p[1][2]
+                ))
+
+
+
+    # elif p[1] == 'if':
+
+
+    # if isinstance(p[1],str): p[1] = symtab[p[1]]
+    # if isinstance(p[3],str): p[3] = symtab[p[3]]
+
+
 
 
 def p_instr_while(p):
     """instr_while : WHILE instr_war DO ciag_instr END """
     # if p[2] == 'instr_war' and p[4] == 'ciag_instr':
-    #     while p[2]: p[4]
+    # while p[2]: p[4][0](p[4][1])
+    # for i in range(len(p)): print(p[i])
+    # while p[2]: print(p[4])
 
-    # p[0] = [p[1], p[2], p[3], p[4], p[5]]
+    p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
 
 def p_instr_if(p):
@@ -235,7 +270,7 @@ def p_instr_if(p):
     # if p[2] == 'instr_war' and p[4] == 'ciag_instr':
     #     if p[2]: p[4]
 
-    # p[0] = [p[1], p[2], p[3], p[4], p[5]]
+    p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
 
 # def p_error(p):
@@ -255,6 +290,6 @@ if __name__ == '__main__':
     parser = yacc.yacc()
     # text = 'forward 1'
     # text = 'a:=1'
-    text = "while 1 < 3 do home end forward 1"
+    text = "i:=1 while i < 3 do home end forward 1"
     parser.parse(text, lexer=lexer)
 
