@@ -3,6 +3,20 @@ import ply.yacc as yacc
 
 import main
 
+from tkinter import Tk, Canvas, Frame, BOTH
+from parser import *
+import math
+
+coord = [300, 300]
+angle = 0
+pen_color = "black"
+pointer = None
+pen_down = True
+turtle_down = True
+root = Tk()
+root.geometry("600x600")
+canvas = Canvas(root)
+
 TESTING = True
 
 reserved = {
@@ -132,7 +146,7 @@ def p_instr_zmienna(p):
 
 def p_color(p):
     """color : NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER"""
-    p[0] = (p[1], p[2], p[3], p[4], p[5], p[6])
+    p[0] = (p[1], p[2], p[3], p[4], p[5], p[6])  # TODO
 
 
 def p_exp(p):  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! def t_IDENT(t):
@@ -321,8 +335,11 @@ if __name__ == '__main__':
     # text = 'forward 1'
     # text = 'a:=1'
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
-    text = "i:=1 while i < 3 do backward 1 clearscreen i:=i+1 end forward 1"
+    text = "i:=1 while i < 25 do backward 10 right 10 i:=i+1 end i:=1 while i < 25 do backward 10 left 10 i:=i+1 end"
     # text = "i:=1 backward 2 forward 3 left 5 i:=i+5"
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
     parser.parse(text, lexer=lexer)
+    root.mainloop()
+
+
 

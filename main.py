@@ -2,7 +2,6 @@ import ply.lex as lex
 from tkinter import Tk, Canvas, Frame, BOTH
 from parser import *
 import math
-import ply.yacc as yacc
 
 coord = [300, 300]
 angle = 0
@@ -123,22 +122,33 @@ def t_PEN_DOWN():
 
 
 if __name__ == '__main__':
-    t_FORWARD(150)
-    t_RIGHT(60)
-    t_PEN_COLOR('red')
-    t_BACKGROUND_COLOR('yellow')
-    t_FORWARD(200)
-    t_RIGHT(30)
-    t_PEN_UP()
-    t_BACKWARD(100)
+    # t_FORWARD(150)
+    # t_RIGHT(60)
+    # t_PEN_COLOR('red')
+    # t_BACKGROUND_COLOR('yellow')
+    # t_FORWARD(200)
+    # t_RIGHT(30)
+    # t_PEN_UP()
+    # t_BACKWARD(100)
     # angle = t_LEFT(angle, 250)
     # print(angle)
     # t_FORWARD(200, angle, canvas)
     # t_CLEARSCREEN(canvas)
     # canvas.create_polygon(300,300,300,310,310,300)
 
-    root.mainloop()
+
     # lexer = lex.lex()
     # parser = yacc.yacc()
     # text = 'a := 5'
     # parser.parse(text, lexer=lexer)
+    lexer = lex.lex()
+    parser = yacc.yacc()
+    # text = 'forward 1'
+    # text = 'a:=1'
+    # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
+    text = "i:=1 while i < 3 do backward 100 right 10 i:=i+1 end forward 10"
+    # text = "i:=1 backward 2 forward 3 left 5 i:=i+5"
+    # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
+    parser.parse(text, lexer=lexer)
+    # root.mainloop()
+
