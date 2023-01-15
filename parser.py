@@ -70,13 +70,28 @@ def t_error(t):
 def p_S(p):
     """S : ciag_instr """
     p[0] = p[1]
+    # print(p[0])
+    executor(p[0])
+
+def executor(output):
+    for instr in output:
+        args = instr[1]
+        if args[0] == None:
+            instr[0]()
+        else:
+            instr[0](args[0],args[1])
+        pass
+
 
 def p_ciag_instr(p):
     """ciag_instr : instrukcja ciag_instr
                     | empty"""
     if len(p) == 3:
-        if p[2] is None: p[0] = p[1]
-        else: p[0] = [p[1],p[2]]
+        if p[2] is not None:
+            p[0] = [p[1]] + p[2]
+        else:
+            p[0] = [p[1]]
+
 
 
 def p_empty(p):
@@ -114,7 +129,7 @@ def p_instr_zmienna(p):
 
 def p_color(p):
     """color : NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER"""
-    p[0] = [p[1], p[2], p[3], p[4], p[5], p[6]]
+    p[0] = (p[1], p[2], p[3], p[4], p[5], p[6])
 
 
 def p_exp(p):  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! def t_IDENT(t):
@@ -126,7 +141,6 @@ def p_numexp(p):
     """numexp : NUMBER
                 | NUMBER numexp"""
     if len(p) == 3:
-        # p[0] = [p[1],p[2]]
         p[0] = p[1]*10 + p[2]
     else:
         p[0] = p[1]
@@ -150,14 +164,16 @@ def p_instr_zwykla(p):
 def p_instr_assign(p):
     """instr_assign : ID PLACE exp
                     | ID PLACE instr_mat"""
-    p[0] = p[3]
-    symtab[p[1]] = p[3]
-    print(p[1],p[3])
 
-    # if p[2] == 'exp':
-    #     p[0] = p[3]
-    # elif p[2] == 'instr_mat':
-    #     p[0] = p[3]
+    def func(a,b):
+        global symtab
+        if not isinstance(b,int):
+            func2, args = b
+            x,y,sign = args[0],args[1],args[2]
+            b = func2(x,y,sign)
+        symtab[a] = b
+
+    p[0] = (func, [p[1], p[3]])
 
 
 def p_instr_mat(p):
@@ -166,17 +182,20 @@ def p_instr_mat(p):
             | exp TIMES exp
             | exp DIVIDE exp"""
 
-    x = symtab[p[1]] if isinstance(p[1],str) else p[1]
-    y = symtab[p[3]] if isinstance(p[3],str) else p[3]
+    def func(x, y, sign):
+        x = symtab[x] if isinstance(x,str) else x
+        y = symtab[y] if isinstance(y,str) else y
+        func2 = lambda a, b: a + b
+        if sign == '-':
+            func2 = lambda a, b: a - b
+        elif sign == '*':
+            func2 = lambda a, b: a * b
+        elif sign == '/':
+            func2 = lambda a, b: a / b
 
-    if p[2] == '+':
-        p[0] = x + y
-    elif p[2] == '-':
-        p[0] = x - y
-    elif p[2] == '*':
-        p[0] = x * y
-    elif p[2] == '/':
-        p[0] = x / y
+        return func2(x,y)
+
+    p[0] = (func, [p[1], p[3], p[2]])
 
 
 
@@ -186,59 +205,63 @@ def p_instr_war(p):
             | exp BIGGER exp
             | exp NOTBIGGER exp
             | exp EQUAL exp"""
-    p[0] = (p[1],p[2],p[3])
+    def func(x, y, sign):
+        x = symtab[x] if isinstance(x,str) else x
+        y = symtab[y] if isinstance(y,str) else y
+        func2 = lambda a, b: a + b
+        if sign == '-':
+            func2 = lambda a, b: a - b
+        elif sign == '*':
+            func2 = lambda a, b: a * b
+        elif sign == '/':
+            func2 = lambda a, b: a / b
+
+        return func2(x,y)
+
+    p[0] = (func, [p[1], p[3], p[2]])
+
+    # def func(x, y):
+    #     x = symtab[x] if isinstance(x,str) else x
+    #     y = symtab[y] if isinstance(y,str) else y
+    #     func2 = instr_war_to_func(p[2])
+    #     return func2(x,y)
+    #
+    # p[0] = (func, [p[1], p[3]])
 
 
 def p_instr_spec(p):
     """instr_spec : instr_while
                 | instr_if"""
-    p = p[1]
-    func = instr_war_to_func(p[1][1])
+    tmp = p[1]
+    warunek = tmp[1]
+    ciag = tmp[3]
 
-    if p[0] == 'while':
-        global TESTING
-        i = 0
-        while func(
-                    symtab[p[1][0]] if isinstance(p[1][0],str) else p[1][0],
-                    symtab[p[1][2]] if isinstance(p[1][2],str) else p[1][2]
-                ):
-
-            for instr in p[3]:
+    def funcWHILE(warunek,ciag):
+        while warunek[0](warunek[1][0],warunek[1][1]):
+            for instr in ciag:
                 if instr[1] is None: instr[0]()
                 else: instr[0](instr[1])
 
-            if TESTING:
-                i += 1
-                if i > 10: break
-
-    elif p[0] == 'if':
-        if func(
-                    symtab[p[1][0]] if isinstance(p[1][0],str) else p[1][0],
-                    symtab[p[1][2]] if isinstance(p[1][2],str) else p[1][2]
-                ):
-
-            for instr in p[3]:
+    def funcIF(warunek,ciag):
+        if warunek[0](warunek[1][0],warunek[1][1]):
+            for instr in ciag:
                 if instr[1] is None: instr[0]()
                 else: instr[0](instr[1])
 
-
-
+    if tmp[0] == 'while':
+        p[0] = (funcWHILE,[warunek,ciag])
+    elif tmp[0] == 'if':
+        p[0] = (funcIF,[warunek,ciag])
 
 
 def p_instr_while(p):
     """instr_while : WHILE instr_war DO ciag_instr END """
-    # if p[2] == 'instr_war' and p[4] == 'ciag_instr':
-    # while p[2]: p[4][0](p[4][1])
-    # for i in range(len(p)): print(p[i])
-    # while p[2]: print(p[4])
 
     p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
 
 def p_instr_if(p):
     """instr_if : IF instr_war THEN ciag_instr END """
-    # if p[2] == 'instr_war' and p[4] == 'ciag_instr':
-    #     if p[2]: p[4]
 
     p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
@@ -257,8 +280,6 @@ def instr_war_to_func(sign):
         func = lambda a, b: a == b
     return func
 
-# def p_error(p):
-#     print("parsing error\n")
 
 if __name__ == '__main__':
     # root = Tk()
@@ -276,6 +297,7 @@ if __name__ == '__main__':
     # text = 'a:=1'
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
     text = "i:=1 while i < 3 do backward 1 clearscreen end forward 1"
+    # text = "i:=1 backward 2 forward 3 left 5 i:=i+5"
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
     parser.parse(text, lexer=lexer)
 
