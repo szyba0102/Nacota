@@ -70,7 +70,6 @@ def t_error(t):
 def p_S(p):
     """S : ciag_instr """
     p[0] = p[1]
-    # print(p[0])
     executor(p[0])
 
 def executor(output):
@@ -78,8 +77,12 @@ def executor(output):
         args = instr[1]
         if args[0] == None:
             instr[0]()
+        elif len(args) == 3:
+            instr[0](args[0], args[2], args[1])
+        elif len(args) == 2:
+            instr[0](args[0], args[1])
         else:
-            instr[0](args[0],args[1])
+            instr[0](args[0])
         pass
 
 
@@ -124,7 +127,7 @@ def p_instr_zmienna(p):
     elif p[1] == 'right': p[1] = main.t_RIGHT
     elif p[1] == 'background': p[1] = main.t_BACKWARD
     elif p[1] == 'pencolor': p[1] = main.t_PEN_COLOR
-    p[0] = (p[1], p[2])
+    p[0] = (p[1], [p[2]])
 
 
 def p_color(p):
@@ -152,13 +155,13 @@ def p_instr_zwykla(p):
                     | PENUP
                     | PENDOWN"""
     if p[1] == "clearscreen":
-        p[0] = (main.t_CLEAR_SCREEN,None)
+        p[0] = (main.t_CLEAR_SCREEN,[None])
     elif p[1] == "home":
-        p[0] = (main.t_HOME,None)
+        p[0] = (main.t_HOME,[None])
     elif p[1] == "penup":
-        p[0] = (main.t_PEN_UP,None)
+        p[0] = (main.t_PEN_UP,[None])
     elif p[1] == "pendown":
-        p[0] = (main.t_PEN_DOWN,None)
+        p[0] = (main.t_PEN_DOWN,[None])
 
 
 def p_instr_assign(p):
@@ -208,13 +211,17 @@ def p_instr_war(p):
     def func(x, y, sign):
         x = symtab[x] if isinstance(x,str) else x
         y = symtab[y] if isinstance(y,str) else y
-        func2 = lambda a, b: a + b
-        if sign == '-':
-            func2 = lambda a, b: a - b
-        elif sign == '*':
-            func2 = lambda a, b: a * b
-        elif sign == '/':
-            func2 = lambda a, b: a / b
+        func2 = lambda a, b: a == b
+        if sign == '<':
+            func2 = lambda a, b: a < b
+        elif sign == '>=':
+            func2 = lambda a, b: a >= b
+        elif sign == '>':
+            func2 = lambda a, b: a > b
+        elif sign == '<=':
+            func2 = lambda a, b: a <= b
+        elif sign == '==':
+            func2 = lambda a, b: a == b
 
         return func2(x,y)
 
@@ -237,16 +244,34 @@ def p_instr_spec(p):
     ciag = tmp[3]
 
     def funcWHILE(warunek,ciag):
-        while warunek[0](warunek[1][0],warunek[1][1]):
+        while warunek[0](warunek[1][0],warunek[1][1],warunek[1][2]):
             for instr in ciag:
-                if instr[1] is None: instr[0]()
-                else: instr[0](instr[1])
+                # if instr[1] is None: instr[0]()
+                # else: instr[0](instr[1])
+                args = instr[1]
+                if args[0] == None:
+                    instr[0]()
+                elif len(args) == 3:
+                    instr[0](args[0], args[2], args[1])
+                elif len(args) == 2:
+                    instr[0](args[0], args[1])
+                else:
+                    instr[0](args[0])
 
     def funcIF(warunek,ciag):
-        if warunek[0](warunek[1][0],warunek[1][1]):
+        if warunek[0](warunek[1][0],warunek[1][1],warunek[1][2]):
             for instr in ciag:
-                if instr[1] is None: instr[0]()
-                else: instr[0](instr[1])
+                # if instr[1] is None: instr[0]()
+                # else: instr[0](instr[1])
+                args = instr[1]
+                if args[0] == None:
+                    instr[0]()
+                elif len(args) == 3:
+                    instr[0](args[0], args[2], args[1])
+                elif len(args) == 2:
+                    instr[0](args[0], args[1])
+                else:
+                    instr[0](args[0])
 
     if tmp[0] == 'while':
         p[0] = (funcWHILE,[warunek,ciag])
@@ -296,7 +321,7 @@ if __name__ == '__main__':
     # text = 'forward 1'
     # text = 'a:=1'
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
-    text = "i:=1 while i < 3 do backward 1 clearscreen end forward 1"
+    text = "i:=1 while i < 3 do backward 1 clearscreen i:=i+1 end forward 1"
     # text = "i:=1 backward 2 forward 3 left 5 i:=i+5"
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
     parser.parse(text, lexer=lexer)
