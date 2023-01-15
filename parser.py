@@ -4,6 +4,8 @@ from tkinter import Tk, Canvas, Frame, BOTH
 import ply.yacc as yacc
 import main
 
+TESTING = True
+
 reserved = {
     'if': 'IF',
     # 'then': 'THEN',
@@ -114,7 +116,8 @@ def p_ciag_instr(p):
     """ciag_instr : instrukcja ciag_instr
                     | empty"""
     if len(p) == 3:
-        p[0] = [p[1],p[2]]
+        if p[2] is None: p[0] = p[1]
+        else: p[0] = [p[1],p[2]]
 
 
 def p_empty(p):
@@ -170,13 +173,13 @@ def p_instr_zwykla(p):
                     | PENUP
                     | PENDOWN"""
     if p[1] == "clearscreen":
-        p[0] = main.t_CLEAR_SCREEN
+        p[0] = (main.t_CLEAR_SCREEN,None)
     elif p[1] == "home":
-        p[0] = main.t_HOME
+        p[0] = (main.t_HOME,None)
     elif p[1] == "penup":
-        p[0] = main.t_PEN_UP
+        p[0] = (main.t_PEN_UP,None)
     elif p[1] == "pendown":
-        p[0] = main.t_PEN_DOWN
+        p[0] = (main.t_PEN_DOWN,None)
 
 
 def p_instr_assign(p):
@@ -221,28 +224,39 @@ def p_instr_spec(p):
                 | instr_if"""
     p = p[1]
 
-    func = lambda a,b: a == b
-
-    if p[2] == '<':
-       func = lambda a,b: a < b
-    elif p[2] == '>=':
-        func = lambda a,b: a >= b
-    elif p[2] == '>':
-        func = lambda a,b: a > b
-    elif p[2] == '<=':
-        func = lambda a,b: a <= b
-    elif p[2] == '==':
-        func = lambda a,b: a == b
+    func = instr_war_to_func(p[1][1])
 
     print("l:",symtab[p[1][0]] if isinstance(p[1][0], str) else p[1][0])
     print("r:",symtab[p[1][2]] if isinstance(p[1][2], str) else p[1][2])
-    print(p[])
 
-    if p[0] == 'while' :
-        print(func(
+    if p[0] == 'while':
+        global TESTING
+        i = 0
+        while func(
                     symtab[p[1][0]] if isinstance(p[1][0],str) else p[1][0],
                     symtab[p[1][2]] if isinstance(p[1][2],str) else p[1][2]
-                ))
+                ):
+
+            for instr in p[3]:
+                if instr[1] is None: instr[0]()
+                else: instr[0](instr[1])
+
+            if TESTING:
+                i += 1
+                if i > 10: break
+
+    elif p[0] == 'if':
+        if func(
+                    symtab[p[1][0]] if isinstance(p[1][0],str) else p[1][0],
+                    symtab[p[1][2]] if isinstance(p[1][2],str) else p[1][2]
+                ):
+
+            for instr in p[3]:
+                if instr[1] is None: instr[0]()
+                else: instr[0](instr[1])
+
+
+
 
 
 
@@ -251,7 +265,6 @@ def p_instr_spec(p):
 
     # if isinstance(p[1],str): p[1] = symtab[p[1]]
     # if isinstance(p[3],str): p[3] = symtab[p[3]]
-
 
 
 
@@ -273,6 +286,20 @@ def p_instr_if(p):
     p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
 
+def instr_war_to_func(sign):
+    func = lambda a, b: a == b
+    if sign == '<':
+        func = lambda a, b: a < b
+    elif sign == '>=':
+        func = lambda a, b: a >= b
+    elif sign == '>':
+        func = lambda a, b: a > b
+    elif sign == '<=':
+        func = lambda a, b: a <= b
+    elif sign == '==':
+        func = lambda a, b: a == b
+    return func
+
 # def p_error(p):
 #     print("parsing error\n")
 
@@ -290,6 +317,7 @@ if __name__ == '__main__':
     parser = yacc.yacc()
     # text = 'forward 1'
     # text = 'a:=1'
-    text = "i:=1 while i < 3 do home end forward 1"
+    text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
+    # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
     parser.parse(text, lexer=lexer)
 
