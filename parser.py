@@ -28,9 +28,6 @@ symtab = {}
 tokens = ['PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'NUMBER', 'ID',
           'PLACE', 'NOTSMALLER', 'NOTBIGGER', 'EQUAL', 'SMALLER', 'BIGGER'] + list(reserved.values())
 
-coord = [300, 300]
-# angle = 90
-
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
@@ -55,40 +52,6 @@ def t_ID(t):
     return t
 
 
-# def t_FORWARD(dist, angle, canvas):
-#     radians = math.radians(angle)
-#     x = math.sin(radians) * dist
-#     y = math.cos(radians) * dist
-#     # print(math.sin(radians))
-#     # print(math.cos(radians))
-#     canvas.create_line(coord, coord[0] + x, coord[1] - y)
-#     coord[0] += x
-#     coord[1] -= y
-#     canvas.pack(fill=BOTH, expand=1)
-#
-# def t_BACKWARD(dist, angle, canvas):
-#     x = math.sin(math.radians(angle)) * dist
-#     y = math.cos(math.radians(angle)) * dist
-#     canvas.create_line(coord, coord[0] - x, coord[1] + y)
-#     coord[0] -= x
-#     coord[1] += y
-#     canvas.pack(fill=BOTH, expand=1)
-#
-#
-# def t_LEFT(val):
-#     angle = math.abs()
-#
-# def t_RIGHT(angle, val):
-#     angle = ((angle + val) % 360)
-#     return angle
-
-# def FOR()
-# def init():
-#     root = Tk()
-#     root.geometry("300x150")
-#     canvas = Canvas(root)
-#     canvas.pack()
-#     root.mainloop()
 def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
@@ -202,14 +165,19 @@ def p_instr_mat(p):
             | exp MINUS exp
             | exp TIMES exp
             | exp DIVIDE exp"""
-    if p[2] == 'PLUS':
-        p[0] = p[1] + p[3]
-    elif p[2] == 'MINUS':
-        p[0] = p[1] - p[3]
-    elif p[2] == 'TIMES':
-        p[0] = p[1] * p[2]
-    elif p[2] == 'DIVIDE':
-        p[0] = p[1] / p[3]
+
+    x = symtab[p[1]] if isinstance(p[1],str) else p[1]
+    y = symtab[p[3]] if isinstance(p[3],str) else p[3]
+
+    if p[2] == '+':
+        p[0] = x + y
+    elif p[2] == '-':
+        p[0] = x - y
+    elif p[2] == '*':
+        p[0] = x * y
+    elif p[2] == '/':
+        p[0] = x / y
+
 
 
 def p_instr_war(p):
@@ -225,7 +193,6 @@ def p_instr_spec(p):
     """instr_spec : instr_while
                 | instr_if"""
     p = p[1]
-
     func = instr_war_to_func(p[1][1])
 
     if p[0] == 'while':
@@ -253,6 +220,7 @@ def p_instr_spec(p):
             for instr in p[3]:
                 if instr[1] is None: instr[0]()
                 else: instr[0](instr[1])
+
 
 
 
