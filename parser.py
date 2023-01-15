@@ -1,14 +1,16 @@
-import math
 import ply.lex as lex
-from tkinter import Tk, Canvas, Frame, BOTH
 import ply.yacc as yacc
+
 import main
 
 TESTING = True
 
 reserved = {
     'if': 'IF',
-    # 'then': 'THEN',
+    'then': 'THEN',
+    'while': 'WHILE',
+    'do': 'DO',
+    'end': 'END',
     'forward': 'FORWARD',
     'backward': 'BACKWARD',
     'left': 'LEFT',
@@ -19,16 +21,10 @@ reserved = {
     'pendown': 'PENDOWN',
     'background': 'BACKGROUND',
     'pencolor': 'PENCOLOR',
-    'while': 'WHILE',
-    'do': 'DO',
-    'end': 'END',
-    'then': 'THEN'
 }
 
 symtab = {}
 
-# tokens = ['PLUS',  'MINUS',  'TIMES',  'DIVIDE',  'LPAREN',  'RPAREN',  'NUMBER', 'ID', 'LBRACE',
-#           'RBRACE', 'PLACE', 'NOTSMALLER', 'NOTBIGGER', 'EQUAL', 'SMALLER', 'BIGGER'] + list(reserved.values())
 tokens = ['PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'NUMBER', 'ID',
           'PLACE', 'NOTSMALLER', 'NOTBIGGER', 'EQUAL', 'SMALLER', 'BIGGER'] + list(reserved.values())
 
@@ -144,7 +140,13 @@ def p_instr_zmienna(p):
                     | RIGHT exp
                     | BACKGROUND color
                     | PENCOLOR color"""
-    p[0] = [p[1], p[2]]
+    if p[1] == 'forward': p[1] = main.t_FORWARD
+    elif p[1] == 'backward': p[1] = main.t_BACKWARD
+    elif p[1] == 'left': p[1] = main.t_LEFT
+    elif p[1] == 'right': p[1] = main.t_RIGHT
+    elif p[1] == 'background': p[1] = main.t_BACKWARD
+    elif p[1] == 'pencolor': p[1] = main.t_PEN_COLOR
+    p[0] = (p[1], p[2])
 
 
 def p_color(p):
@@ -226,9 +228,6 @@ def p_instr_spec(p):
 
     func = instr_war_to_func(p[1][1])
 
-    print("l:",symtab[p[1][0]] if isinstance(p[1][0], str) else p[1][0])
-    print("r:",symtab[p[1][2]] if isinstance(p[1][2], str) else p[1][2])
-
     if p[0] == 'while':
         global TESTING
         i = 0
@@ -255,16 +254,6 @@ def p_instr_spec(p):
                 if instr[1] is None: instr[0]()
                 else: instr[0](instr[1])
 
-
-
-
-
-
-    # elif p[1] == 'if':
-
-
-    # if isinstance(p[1],str): p[1] = symtab[p[1]]
-    # if isinstance(p[3],str): p[3] = symtab[p[3]]
 
 
 
@@ -317,7 +306,8 @@ if __name__ == '__main__':
     parser = yacc.yacc()
     # text = 'forward 1'
     # text = 'a:=1'
-    text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
+    # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
+    text = "i:=1 while i < 3 do backward 1 clearscreen end forward 1"
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
     parser.parse(text, lexer=lexer)
 
