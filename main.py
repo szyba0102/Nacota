@@ -114,12 +114,12 @@ def t_PEN_DOWN():
     pen_down = True
 
 
-def init():
-    root = Tk()
-    root.geometry("300x150")
-    canvas = Canvas(root)
-    canvas.pack()
-    root.mainloop()
+# def init():
+#     root = Tk()
+#     root.geometry("300x150")
+#     canvas = Canvas(root)
+#     canvas.pack()
+#     root.mainloop()
 
 
 if __name__ == '__main__':
