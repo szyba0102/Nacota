@@ -1,154 +1,49 @@
-import ply.lex as lex
-from tkinter import Tk, Canvas, Frame, BOTH
-from parser import *
-import math
+import logo_parser as pr
+from tkinter import *
 
-coord = [300, 300]
-angle = 0
-pen_color = "black"
-pointer = None
-pen_down = True
-turtle_down = True
-root = Tk()
-root.geometry("600x600")
-canvas = Canvas(root)
+input_txt = None;
+lexer, parser = pr.create_parser()
+def start(text):
 
+    def Take_input():
+        INPUT = input_txt.get("1.0", "end-1c")
+        # print(input_txt)
+        execute(INPUT)
 
-def t_FORWARD(dist):
-    global angle, canvas, pointer, pen_color, turtle_down
-    canvas.delete(pointer)
-    radians = math.radians(angle)
-    x = math.sin(radians) * dist
-    y = math.cos(radians) * dist
-    if pen_down:
-        canvas.create_line(coord, coord[0] + x, coord[1] - y, fill=pen_color)
-        canvas.pack(fill=BOTH, expand=1)
+    l = Label(text="command")
+    input_txt = Text(pr.fc.root, height=10,
+                    width=25,
+                    bg="light yellow")
 
-    coord[0] += x
-    coord[1] -= y
-    if turtle_down:
-        t_CREATE_POINTER()
+    # Output = Text(pr.fc.root, height=5,
+    #               width=25,
+    #               bg="light cyan")
 
+    Display = Button(pr.fc.root, height=2,
+                     width=20,
+                     text="Execute",
+                     command=lambda: Take_input())
 
-def t_BACKWARD(dist):
-    global angle, canvas, pointer, pen_color, turtle_down
-    canvas.delete(pointer)
-    x = math.sin(math.radians(angle)) * dist
-    y = math.cos(math.radians(angle)) * dist
-    if pen_down:
-        canvas.create_line(coord, coord[0] - x, coord[1] + y, fill=pen_color)
-        canvas.pack(fill=BOTH, expand=1)
+    l.pack()
+    input_txt.pack()
+    Display.pack()
+    # Output.pack()
 
-    coord[0] -= x
-    coord[1] += y
-    if turtle_down:
-        t_CREATE_POINTER()
+    # parser.parse(text, lexer=lexer)
+    # pr.fc.root.mainloop()
+    execute(text)
 
 
-def t_LEFT(val):
-    global angle, canvas, pointer, turtle_down
-    canvas.delete(pointer)
-    angle = (angle - val) % 360
-    if turtle_down:
-        t_CREATE_POINTER()
 
-
-def t_RIGHT(val):
-    global angle, canvas, pointer, turtle_down
-    canvas.delete(pointer)
-    angle = (angle + val) % 360
-    if turtle_down:
-        t_CREATE_POINTER()
-
-
-def t_HOME():
-    coord[0] = 300
-    coord[1] = 300
-
-
-def t_CLEAR_SCREEN():
-    global canvas
-    canvas.delete("all")
-
-
-def t_CREATE_POINTER():
-    global angle, canvas, pointer
-    x1 = coord[0] + math.sin(math.radians((angle + 90) % 360)) * 4
-    y1 = coord[1] - math.cos(math.radians((angle + 90) % 360)) * 4
-    x2 = coord[0] + math.sin(math.radians(angle)) * 15
-    y2 = coord[1] - math.cos(math.radians(angle)) * 15
-    x3 = coord[0] + math.sin(math.radians((angle - 90) % 360)) * 4
-    y3 = coord[1] - math.cos(math.radians((angle - 90) % 360)) * 4
-    points = [x1, y1, x2, y2, x3, y3]
-    pointer = canvas.create_polygon(points)
-
-
-def t_PEN_COLOR(new_color):
-    global pen_color
-    pen_color = new_color
-
-
-def t_BACKGROUND_COLOR(new_color):
-    global canvas
-    canvas.configure(bg=new_color)
-
-
-def t_TURTLE_UP():
-    global turtle_down
-    turtle_down = False
-
-
-def t_TURTLE_DOWN():
-    global turtle_down
-    turtle_down = True
-
-
-def t_PEN_UP():
-    global pen_down
-    pen_down = False
-
-
-def t_PEN_DOWN():
-    global pen_down
-    pen_down = True
-
-
-# def init():
-#     root = Tk()
-#     root.geometry("300x150")
-#     canvas = Canvas(root)
-#     canvas.pack()
-#     root.mainloop()
+def execute(text):
+    global lexer, parser
+    parser.parse(text, lexer=lexer)
+    pr.fc.root.mainloop()
 
 
 if __name__ == '__main__':
-    # t_FORWARD(150)
-    # t_RIGHT(60)
-    # t_PEN_COLOR('red')
-    # t_BACKGROUND_COLOR('yellow')
-    # t_FORWARD(200)
-    # t_RIGHT(30)
-    # t_PEN_UP()
-    # t_BACKWARD(100)
-    # angle = t_LEFT(angle, 250)
-    # print(angle)
-    # t_FORWARD(200, angle, canvas)
-    # t_CLEARSCREEN(canvas)
-    # canvas.create_polygon(300,300,300,310,310,300)
 
-
-    # lexer = lex.lex()
-    # parser = yacc.yacc()
-    # text = 'a := 5'
-    # parser.parse(text, lexer=lexer)
-    lexer = lex.lex()
-    parser = yacc.yacc()
-    # text = 'forward 1'
-    # text = 'a:=1'
-    # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end forward 1"
-    text = "i:=1 while i < 3 do backward 100 right 10 i:=i+1 end forward 10"
     # text = "i:=1 backward 2 forward 3 left 5 i:=i+5"
     # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
-    parser.parse(text, lexer=lexer)
-    # root.mainloop()
-
+    text = "i:=1 while i < 25 do backward 10 right 10 i:=i+1 end i:=1 while i < 25 do backward 10 left 10 i:=i+1 end"
+    start("forward 1")
