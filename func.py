@@ -12,8 +12,10 @@ root.geometry("800x800")
 canvas = Canvas(root)
 
 
-def t_FORWARD(dist):
+
+def t_FORWARD(dist, symtab):
     global angle, canvas, pointer, pen_color, turtle_down
+    if isinstance(dist, str): dist = symtab[dist]
     canvas.delete(pointer)
     radians = math.radians(angle)
     x = math.sin(radians) * dist
@@ -44,8 +46,9 @@ def t_FORWARD(dist):
         t_CREATE_POINTER()
 
 
-def t_BACKWARD(dist):
+def t_BACKWARD(dist, symtab):
     global angle, canvas, pointer, pen_color, turtle_down
+    if isinstance(dist, str): dist = symtab[dist]
     canvas.delete(pointer)
     x = math.sin(math.radians(angle)) * dist
     y = math.cos(math.radians(angle)) * dist
@@ -59,16 +62,18 @@ def t_BACKWARD(dist):
         t_CREATE_POINTER()
 
 
-def t_LEFT(val):
+def t_LEFT(val, symtab):
     global angle, canvas, pointer, turtle_down
+    if isinstance(val, str): val = symtab[val]
     canvas.delete(pointer)
     angle = (angle - val) % 360
     if turtle_down:
         t_CREATE_POINTER()
 
 
-def t_RIGHT(val):
+def t_RIGHT(val, symtab):
     global angle, canvas, pointer, turtle_down
+    if isinstance(val, str): val = symtab[val]
     canvas.delete(pointer)
     angle = (angle + val) % 360
     if turtle_down:
@@ -99,12 +104,12 @@ def t_CREATE_POINTER():
     pointer = canvas.create_polygon(points)
 
 
-def t_PEN_COLOR(new_color):
+def t_PEN_COLOR(new_color, *args):
     global pen_color
     pen_color = new_color
 
 
-def t_BACKGROUND_COLOR(new_color):
+def t_BACKGROUND_COLOR(new_color, *args):
     global canvas
     canvas.configure(bg=new_color)
 

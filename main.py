@@ -1,7 +1,7 @@
 import logo_parser as pr
 from tkinter import *
 
-input_txt = None;
+input_txt = None
 lexer, parser = pr.create_parser()
 def start(text):
 
@@ -12,7 +12,7 @@ def start(text):
 
     l = Label(text="command")
     input_txt = Text(pr.fc.root, height=10,
-                    width=25,
+                    width=35,
                     bg="light yellow")
 
     # Output = Text(pr.fc.root, height=5,

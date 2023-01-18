@@ -5,6 +5,8 @@ import func as fc
 
 TESTING = True
 
+symtab = {}
+
 reserved = {
     'if': 'IF',
     'then': 'THEN',
@@ -23,7 +25,7 @@ reserved = {
     'pencolor': 'PENCOLOR',
 }
 
-symtab = {}
+
 
 tokens = ['PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'NUMBER', 'ID',
           'PLACE', 'NOTSMALLER', 'NOTBIGGER', 'EQUAL', 'SMALLER', 'BIGGER'] + list(reserved.values())
@@ -42,15 +44,15 @@ t_BIGGER = r'\>'
 t_ignore = ' \t'
 
 
-def t_ID(t):
-    r"[a-zA-Z_]\w*"
-    t.type = reserved.get(t.value, 'ID')
+def t_NUMBER(t):
+    r"\d+"
+    t.value = int(t.value)
     return t
 
 
-def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
+def t_ID(t):
+    r"[a-zA-Z_]\w*"
+    t.type = reserved.get(t.value, 'ID')
     return t
 
 
@@ -81,7 +83,6 @@ def executor(output):
             instr[0](args[0], args[1])
         else:
             instr[0](args[0])
-        pass
 
 
 def p_ciag_instr(p):
@@ -96,7 +97,6 @@ def p_ciag_instr(p):
 
 def p_empty(p):
     'empty :'
-    # pass
 
 
 def p_instrukcja(p):
@@ -131,27 +131,19 @@ def p_instr_zmienna(p):
         p[1] = fc.t_BACKWARD
     elif p[1] == 'pencolor':
         p[1] = fc.t_PEN_COLOR
-    p[0] = (p[1], [p[2]])
+    p[0] = (p[1], [p[2],symtab])
 
 
 def p_color(p):
-    """color : NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER"""
-    p[0] = (p[1], p[2], p[3], p[4], p[5], p[6])  # TODO
-
-
-def p_exp(p):  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! def t_IDENT(t):
-    """exp : numexp
-            | ID """
+    """color : ID"""
+    if not p[1] in ["red","yellow","blue","green","purple","pink","brown","white","black","orange"]: p_error(p)
     p[0] = p[1]
 
 
-def p_numexp(p):
-    """numexp : NUMBER
-                | NUMBER numexp"""
-    if len(p) == 3:
-        p[0] = p[1] * 10 + p[2]
-    else:
-        p[0] = p[1]
+def p_exp(p):
+    """exp : NUMBER
+            | ID """
+    p[0] = p[1]
 
 
 def p_instr_zwykla(p):
@@ -191,6 +183,7 @@ def p_instr_mat(p):
             | exp DIVIDE exp"""
 
     def func(x, y, sign):
+        global symtab
         x = symtab[x] if isinstance(x, str) else x
         y = symtab[y] if isinstance(y, str) else y
         func2 = lambda a, b: a + b
@@ -214,6 +207,7 @@ def p_instr_war(p):
             | exp EQUAL exp"""
 
     def func(x, y, sign):
+        global symtab
         x = symtab[x] if isinstance(x, str) else x
         y = symtab[y] if isinstance(y, str) else y
         func2 = lambda a, b: a == b
@@ -243,8 +237,6 @@ def p_instr_spec(p):
     def funcWHILE(warunek, ciag):
         while warunek[0](warunek[1][0], warunek[1][1], warunek[1][2]):
             for instr in ciag:
-                # if instr[1] is None: instr[0]()
-                # else: instr[0](instr[1])
                 args = instr[1]
                 if args[0] == None:
                     instr[0]()
@@ -258,8 +250,6 @@ def p_instr_spec(p):
     def funcIF(warunek, ciag):
         if warunek[0](warunek[1][0], warunek[1][1], warunek[1][2]):
             for instr in ciag:
-                # if instr[1] is None: instr[0]()
-                # else: instr[0](instr[1])
                 args = instr[1]
                 if args[0] == None:
                     instr[0]()
@@ -287,6 +277,12 @@ def p_instr_if(p):
 
     p[0] = [p[1], p[2], p[3], p[4], p[5]]
 
+def p_error(p):
+   if p:
+      print("Syntax error at line {0}: LexToken({1}, '{2}')".format(p.lineno, p.type, p.value))
+   else:
+      print("Unexpected end of input")
+
 
 def instr_war_to_func(sign):
     func = lambda a, b: a == b
@@ -304,6 +300,7 @@ def instr_war_to_func(sign):
 
 
 def create_parser():
+    global symtab
     lexer = lex.lex()
     parser = yacc.yacc()
     return lexer, parser
