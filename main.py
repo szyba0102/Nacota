@@ -1,4 +1,4 @@
-import logo_parser as pr
+import nacota_parser as pr
 from tkinter import *
 
 input_txt = None
@@ -8,11 +8,13 @@ def start(text):
     def Take_input():
         INPUT = input_txt.get("1.0", "end-1c")
         # print(input_txt)
+        if INPUT == "":
+            return
         execute(INPUT)
 
     l = Label(text="command")
-    input_txt = Text(pr.fc.root, height=10,
-                    width=35,
+    input_txt = Text(pr.fc.root, height=5,
+                    width=80,
                     bg="light yellow")
 
     # Output = Text(pr.fc.root, height=5,
