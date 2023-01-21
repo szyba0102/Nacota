@@ -115,8 +115,11 @@ def t_RIGHT(val, symtab):
 
 
 def t_HOME():
+    global coord, pointer, canvas
     coord[0] = 400
     coord[1] = 300
+    canvas.delete(pointer)
+    pointer = t_CREATE_POINTER()
 
 
 def t_CLEAR_SCREEN():
