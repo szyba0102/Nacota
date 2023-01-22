@@ -16,7 +16,7 @@ canvas = Canvas(root)
 
 
 def t_FORWARD(dist, symtab):
-    global angle, canvas, pointer, pen_color, turtle_down
+    global angle, canvas, pointer, pen_color, turtle_down, coord, pen_down, turtle_down
     checkY = False
     checkX = False
     if isinstance(dist, str): dist = symtab[dist]
@@ -56,41 +56,62 @@ def t_FORWARD(dist, symtab):
                 coord[0] += new_x
                 canvas.create_line(prev_coord, coord[0], coord[1], fill=pen_color)
         canvas.pack(fill=BOTH, expand=1)
+    else:
+        if not (coord[0] + x >= 800 or coord[0] + x <= 0 or coord[1] - y >= 650 or coord[1] + y <= 15):
+            coord[0] += x
+            coord[1] -= y
+        else:
+            if coord[0] + x >= 800:
+                tmp = 800 - coord[0]
+                new_y = tmp * y / x
+                coord[0] = 800
+                coord[1] -= new_y
 
-    # coord[0] += x
-    # coord[1] -= y
-    #
-    # if coord[0] >= 800:
-    #     coord[0] -= 800
-    #     print("zmiana",coord)
-    #
-    # elif coord[0] <= 0:
-    #     coord[0] += 800
-    #     print("zmiana", coord)
-    # if coord[1] >= 800:
-    #     coord[1] -= 785
-    #     print("zmiana", coord)
-    #
-    # elif coord[1] <= 15:
-    #     coord[1] += 785
-    #     print("zmiana", coord)
+            elif coord[0] + x <= 0:
+                tmp = coord[0]
+                new_y = tmp * y / x
+                coord[0] = 0
+                coord[1] += new_y
+
+            if coord[1] - y >= 650:
+                tmp = 650 - coord[1]
+                new_x = tmp * x / y
+                coord[1] = 650
+                coord[0] -= new_x
+
+            elif coord[1] + y <= 15:
+                tmp = coord[1] - 15
+                new_x = tmp * x / y
+                coord[1] = 15
+                coord[0] += new_x
+
+        canvas.pack(fill=BOTH, expand=1)
 
     if turtle_down:
         t_CREATE_POINTER()
 
 
-def t_BACKWARD(dist, symtab):
+def t_BACKWARD(dist, symtab):  # wersja z zatrzymaniem na ścianie
     global angle, canvas, pointer, pen_color, turtle_down
     if isinstance(dist, str): dist = symtab[dist]
     canvas.delete(pointer)
     x = math.sin(math.radians(angle)) * dist
     y = math.cos(math.radians(angle)) * dist
+
+    new_coord_0 = max(25.0, coord[0] - x)  # 25 żeby nie było idealnie nagranicy
+    new_coord_1 = max(25.0, coord[1] + y)
+    new_coord_0 = min(new_coord_0, 800)
+    new_coord_1 = min(new_coord_1, 650)
+
     if pen_down:
-        canvas.create_line(coord, coord[0] - x, coord[1] + y, fill=pen_color)
+        # canvas.create_line(coord, coord[0] - x, coord[1] + y, fill=pen_color)
+        canvas.create_line(coord, new_coord_0, new_coord_1, fill=pen_color)
         canvas.pack(fill=BOTH, expand=1)
 
-    coord[0] -= x
-    coord[1] += y
+    # coord[0] -= x
+    # coord[1] += y
+    coord[0] = new_coord_0
+    coord[1] = new_coord_1
     print(coord)
     if turtle_down:
         t_CREATE_POINTER()
@@ -115,11 +136,12 @@ def t_RIGHT(val, symtab):
 
 
 def t_HOME():
-    global coord, pointer, canvas
+    global coord, pointer, canvas, angle
     coord[0] = 400
     coord[1] = 300
+    angle = 0
     canvas.delete(pointer)
-    pointer = t_CREATE_POINTER()
+    t_CREATE_POINTER()
 
 
 def t_CLEAR_SCREEN():
@@ -155,13 +177,15 @@ def t_BACKGROUND_COLOR(new_color, *args):
 
 
 def t_TURTLE_UP():
-    global turtle_down
+    global turtle_down, pointer, canvas
     turtle_down = False
+    canvas.delete(pointer)
 
 
 def t_TURTLE_DOWN():
     global turtle_down
     turtle_down = True
+    t_CREATE_POINTER()
 
 
 def t_PEN_UP():

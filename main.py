@@ -17,9 +17,6 @@ def start(text):
                     width=80,
                     bg="light yellow")
 
-    # Output = Text(pr.fc.root, height=5,
-    #               width=25,
-    #               bg="light cyan")
 
     Display = Button(pr.fc.root, height=2,
                      width=20,
@@ -29,10 +26,7 @@ def start(text):
     l.pack()
     input_txt.pack()
     Display.pack()
-    # Output.pack()
 
-    # parser.parse(text, lexer=lexer)
-    # pr.fc.root.mainloop()
     execute(text)
 
 
@@ -45,7 +39,41 @@ def execute(text):
 
 if __name__ == '__main__':
 
-    # text = "i:=1 backward 2 forward 3 left 5 i:=i+5"
-    # text = "i:=1 while i < 3 do home clearscreen i:=i+1 end i:=5 if i==5 then penup end"
     text = "i:=1 while i < 25 do backward 10 right 10 i:=i+1 end i:=1 while i < 25 do backward 10 left 10 i:=i+1 end"
     start("forward 1")
+
+    '''
+    great example:
+    c:=15
+    while c>0 do
+    a:=10
+    b:=10
+    while a>0 do while b>0 do forward 10 left 10 b:=b-1 end a:=a-1 forward a end
+    c:=c-1
+    end
+    
+    another one:
+    a:=10
+    while a>0 do
+    b:=10
+    while b>0 do forward 4 penup forward 4 pendown forward 4 left 10 b:=b-1 end
+    a:=a-1
+    end
+    
+    pencolor:
+    pencolor blue forward 100 pencolor pink left 90 forward 100 
+    
+    kolorowa gwiazda:
+    background pink pencolor white turtleup
+    a:=20
+    while a>0 do
+    forward 100 left 170 forward 100
+    a:=a-1
+    end
+    pencolor yellow
+    a:=20
+    while a>0 do
+    forward 100 left 170 forward 100
+    a:=a-1
+    end
+    '''

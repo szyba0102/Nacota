@@ -23,6 +23,8 @@ reserved = {
     'pendown': 'PENDOWN',
     'background': 'BACKGROUND',
     'pencolor': 'PENCOLOR',
+    'turtleup': 'TURTLEUP',
+    'turtledown': 'TURTLEDOWN'
 }
 
 
@@ -128,7 +130,7 @@ def p_instr_zmienna(p):
     elif p[1] == 'right':
         p[1] = fc.t_RIGHT
     elif p[1] == 'background':
-        p[1] = fc.t_BACKWARD
+        p[1] = fc.t_BACKGROUND_COLOR
     elif p[1] == 'pencolor':
         p[1] = fc.t_PEN_COLOR
     p[0] = (p[1], [p[2],symtab])
@@ -150,7 +152,9 @@ def p_instr_zwykla(p):
     """instr_zwykla : CLEARSCREEN
                     | HOME
                     | PENUP
-                    | PENDOWN"""
+                    | PENDOWN
+                    | TURTLEUP
+                    | TURTLEDOWN"""
     if p[1] == "clearscreen":
         p[0] = (fc.t_CLEAR_SCREEN, [None])
     elif p[1] == "home":
@@ -159,6 +163,10 @@ def p_instr_zwykla(p):
         p[0] = (fc.t_PEN_UP, [None])
     elif p[1] == "pendown":
         p[0] = (fc.t_PEN_DOWN, [None])
+    elif p[1] == "turtleup":
+        p[0] = (fc.t_TURTLE_UP, [None])
+    elif p[1] == "turtledown":
+        p[0] = (fc.t_TURTLE_DOWN, [None])
 
 
 def p_instr_assign(p):
