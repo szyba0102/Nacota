@@ -56,7 +56,31 @@ def t_FORWARD(dist, symtab):
                 coord[0] += new_x
                 canvas.create_line(prev_coord, coord[0], coord[1], fill=pen_color)
         canvas.pack(fill=BOTH, expand=1)
-
+    else:
+        if not (coord[0] + x >= 800 or coord[0] + x <= 0 or coord[1] - y >= 650 or coord[1] - y <= 15):
+            coord[0] += x
+            coord[1] -= y
+        else:
+            if coord[0] + x >= 800:
+                tmp = 800 - coord[0]
+                new_y = tmp * y / x
+                coord[0] = 800
+                coord[1] -= new_y
+            elif coord[0] + x <= 0:
+                tmp = coord[0]
+                new_y = tmp * y / x
+                coord[0] = 0
+                coord[1] += new_y
+            if coord[1] - y >= 650:
+                tmp = 650 - coord[1]
+                new_x = tmp * x / y
+                coord[1] = 650
+                coord[0] -= new_x
+            elif coord[1] - y <= 15:
+                tmp = coord[1] - 15
+                new_x = tmp * x / y
+                coord[1] = 15
+                coord[0] += new_x
     if turtle_down:
         t_CREATE_POINTER()
 
@@ -100,7 +124,31 @@ def t_BACKWARD(dist, symtab):  # wersja z zatrzymaniem na ścianie
                 coord[0] += new_x
                 canvas.create_line(prev_coord, coord[0], coord[1], fill=pen_color)
         canvas.pack(fill=BOTH, expand=1)
-
+    else:
+        if not (coord[0] - x >= 800 or coord[0] - x <= 0 or coord[1] + y >= 650 or coord[1] + y <= 15):
+            coord[0] -= x
+            coord[1] += y
+        else:
+            if coord[0] - x >= 800:
+                tmp = 800 - coord[0]
+                new_y = tmp * y / x
+                coord[0] = 800
+                coord[1] -= new_y
+            elif coord[0] - x <= 0:
+                tmp = coord[0]
+                new_y = tmp * y / x
+                coord[0] = 0
+                coord[1] += new_y
+            if coord[1] + y >= 650:
+                tmp = 650 - coord[1]
+                new_x = tmp * x / y
+                coord[1] = 650
+                coord[0] -= new_x
+            elif coord[1] + y <= 15:
+                tmp = coord[1] - 15
+                new_x = tmp * x / y
+                coord[1] = 15
+                coord[0] += new_x
     if turtle_down:
         t_CREATE_POINTER()
 

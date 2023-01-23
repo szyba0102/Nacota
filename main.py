@@ -26,7 +26,6 @@ def start(text):
     l.pack()
     input_txt.pack()
     Display.pack()
-
     execute(text)
 
 
