@@ -38,8 +38,8 @@ def execute(text):
 
 if __name__ == '__main__':
 
-    text = "i:=1 while i < 25 do backward 10 right 10 i:=i+1 end i:=1 while i < 25 do backward 10 left 10 i:=i+1 end"
-    start("forward 1")
+    # text = "i:=1 while i < 25 do backward 10 right 10 i:=i+1 end i:=1 while i < 25 do backward 10 left 10 i:=i+1 end"
+    start("forward 0")
 
     '''
     great example:

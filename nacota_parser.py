@@ -75,6 +75,9 @@ def p_S(p):
 
 
 def executor(output):
+    if output is None:
+        print("Executor error")
+        return
     for instr in output:
         args = instr[1]
         if args[0] == None:
